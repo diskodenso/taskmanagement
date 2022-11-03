@@ -1,6 +1,17 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { Task } from './task.model';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { Task, TaskStatus } from './task.model';
 import { TasksService } from './tasks.service';
+import { GetTasksFilterDto } from './dto/get-task-filter.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -8,8 +19,18 @@ export class TasksController {
   //   you can prefix parameter Names with an accessor like private or public
   constructor(private tasksService: TasksService) {}
   @Get()
-  getAllTasks(): Task[] {
-    return this.tasksService.getallTasks();
+  getTasks(@Query() filterDto: GetTasksFilterDto): Task[] {
+    // if we have any filters defined, call tasksService.getTasksWithFilters otherwise just get all tasks
+    if (Object.keys(filterDto).length) {
+      return this.tasksService.getTasksWithFilters(filterDto);
+    } else {
+      return this.tasksService.getallTasks();
+    }
+  }
+  // get task by id controller
+  @Get('/:id')
+  getTaskById(@Param('id') id: string): Task {
+    return this.tasksService.getTaskById(id);
   }
   // first option is to retrieve the whole body - when request comes in and takes all the request body and assigns it to that arguments
   // this way you need to do validation so clients cant create new properties
@@ -18,10 +39,22 @@ export class TasksController {
   //     console.log('body', body);
   //   }
   @Post()
-  createTask(
-    @Body('title') title: string,
-    @Body('description') description: string,
+  createTask(@Body() createTaskDto: CreateTaskDto): Task {
+    return this.tasksService.createTask(createTaskDto);
+  }
+
+  @Delete('/:id')
+  // use void as a type cause we dont want to return anything
+  deleteTask(@Param('id') id: string): void {
+    return this.tasksService.deleteTask(id);
+  }
+
+  // update task status controller
+  @Patch('/:id/status')
+  updateTaskStatus(
+    @Param('id') id: string,
+    @Body('status') status: TaskStatus,
   ): Task {
-    return this.tasksService.createTask(title, description);
+    return this.tasksService.updateTaskStatus(id, status);
   }
 }
