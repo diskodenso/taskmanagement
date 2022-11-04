@@ -12,12 +12,14 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { Task, TaskStatus } from './task.model';
 import { TasksService } from './tasks.service';
 import { GetTasksFilterDto } from './dto/get-task-filter.dto';
+import { UpdateTaskStatus } from './dto/update-task-status.dto';
 
 @Controller('tasks')
 export class TasksController {
   //   inject tasks service into controller with constructor and you can can use it in your function
   //   you can prefix parameter Names with an accessor like private or public
   constructor(private tasksService: TasksService) {}
+  // get tasks by search/filter function with query parameters
   @Get()
   getTasks(@Query() filterDto: GetTasksFilterDto): Task[] {
     // if we have any filters defined, call tasksService.getTasksWithFilters otherwise just get all tasks
@@ -53,8 +55,9 @@ export class TasksController {
   @Patch('/:id/status')
   updateTaskStatus(
     @Param('id') id: string,
-    @Body('status') status: TaskStatus,
+    @Body() updateTaskStatus: UpdateTaskStatus,
   ): Task {
+    const { status } = updateTaskStatus;
     return this.tasksService.updateTaskStatus(id, status);
   }
 }
