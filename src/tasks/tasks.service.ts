@@ -10,7 +10,7 @@ export class TasksService {
   // type is an array of Task
   private tasks: Task[] = [];
 
-  // setip methods to interface with our service
+  // setup methods to interface with our service
   // define a method to communication with the controller
   getallTasks() {
     return this.tasks;
